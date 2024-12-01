@@ -113,6 +113,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import QRCode from 'react-qr-code';
 import { QrScanner } from 'react-qrcode-scanner-mi';  // Correct named import
+import constant from '../constant';
 
 function Cart() {
     const [bookedMovies, setBookedMovies] = useState([]);
@@ -127,7 +128,7 @@ function Cart() {
 
         const fetchBookedMovies = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/bookings/cart', {
+                const response = await axios.get(`${constant}/bookings/cart`, {
                     headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
                 });
                 setBookedMovies(response.data);

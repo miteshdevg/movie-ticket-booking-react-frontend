@@ -522,6 +522,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import constant from '../constant';
 
 function Home() {
     const [movies, setMovies] = useState([]);
@@ -550,7 +551,7 @@ function Home() {
 
     const fetchMovies = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/movies');
+            const response = await axios.get(`${constant}/movies`);
             setMovies(response.data);
         } catch (error) {
             console.error('Error fetching movies:', error);
@@ -575,7 +576,7 @@ function Home() {
         }
 
         try {
-            const response = await axios.post('http://localhost:5000/movies/add', formData, {
+            const response = await axios.post(`${constant}/movies/add`, formData, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`,
                     'Content-Type': 'multipart/form-data',
@@ -601,7 +602,7 @@ function Home() {
 
     const handleDeleteMovie = async (movieId) => {
         try {
-            await axios.delete(`http://localhost:5000/movies/delete/${movieId}`, {
+            await axios.delete(`${constant}/movies/delete/${movieId}`, {
                 headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
             });
             setMovies(movies.filter((movie) => movie.id !== movieId)); // Remove the deleted movie
@@ -667,7 +668,7 @@ function Home() {
 
         try {
             const response = await axios.put(
-                `http://localhost:5000/movies/edit/${edit_ID}`,
+                `${constant}/movies/edit/${edit_ID}`,
                 formData,
                 {
                     headers: {
@@ -712,7 +713,7 @@ function Home() {
     const handleTicketChange = async (movieId, newTicketCount) => {
         try {
             await axios.patch(
-                `http://localhost:5000/movies/${movieId}`,
+                `${constant}/movies/${movieId}`,
                 { tickets: newTicketCount },
                 {
                     headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },

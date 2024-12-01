@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import constant from '../constant';
 
 function EditMovie() {
     const { id } = useParams();
@@ -15,7 +16,7 @@ function EditMovie() {
         }
         const fetchMovie = async () => {
             try {
-                const response = await axios.get(`http://localhost:5000/movies/${id}`);
+                const response = await axios.get(`${constant}/movies/${id}`);
                 setMovieData(response.data);
             } catch (error) {
                 console.error('Error fetching movie details:', error);
@@ -32,7 +33,7 @@ function EditMovie() {
     const handleUpdate = async (e) => {
         e.preventDefault();
         try {
-            await axios.put(`http://localhost:5000/movies/${id}`, movieData, {
+            await axios.put(`${constant}/movies/${id}`, movieData, {
                 headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
             });
             navigate('/'); // Redirect back to home page after update

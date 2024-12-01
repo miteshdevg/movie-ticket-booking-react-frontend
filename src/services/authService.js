@@ -1,6 +1,7 @@
 import axios from 'axios';
+import constant from '../constant';
 
-const API_URL = 'http://localhost:5000/auth'; // Adjust if your server URL is different
+const API_URL = `${constant}/auth`; // Adjust if your server URL is different
 
 // Register a new user
 export const registerUser = async (userData) => {

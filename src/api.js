@@ -1,6 +1,7 @@
 import axios from 'axios';
+import constant from './constant';
 
-const API_URL = 'http://localhost:5000/auth'; // Update this to your backend URL
+const API_URL = `${constant}/auth`; // Update this to your backend URL
 
 // export const loginUser = async (credentials) => {
 //     const response = await axios.post(`${API_URL}/login`, credentials);
@@ -40,7 +41,7 @@ export const loginUser = async (username, password) => {
     let config = {
         method: 'post',
         maxBodyLength: Infinity,
-        url: 'http://localhost:5000/auth/login',
+        url: `${constant}/auth/login`,
         headers: {
             'content': 'application/json',
             'Content-Type': 'application/json'

@@ -95,6 +95,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import swal from 'sweetalert';
+import constant from '../constant';
 
 
 function MovieDetails() {
@@ -107,7 +108,7 @@ function MovieDetails() {
     useEffect(() => {
         const fetchMovieDetails = async () => {
             try {
-                const response = await axios.get(`http://localhost:5000/movies/${id}`);
+                const response = await axios.get(`${constant}/movies/${id}`);
                 setMovie(response.data);
             } catch (error) {
                 console.error('Error fetching movie details:', error);
@@ -125,7 +126,7 @@ function MovieDetails() {
         try {
             if (movie.tickets_available >= numTickets) {
                 const response = await axios.post(
-                    `http://localhost:5000/bookings/book`,
+                    `${constant}/bookings/book`,
                     { movie_id: id, num_tickets: numTickets }, // Include num_tickets in the request body
                     {
                         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }, // Headers

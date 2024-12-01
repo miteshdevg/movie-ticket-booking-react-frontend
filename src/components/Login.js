@@ -69,6 +69,7 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import constant from '../constant';
 
 function Login({ setIsAuthenticated }) {
     const [formData, setFormData] = useState({ username: '', password: '' });
@@ -90,7 +91,7 @@ function Login({ setIsAuthenticated }) {
         e.preventDefault();
         try {
             // Simulate the API call here
-            const response = await axios.post('http://localhost:5000/auth/login', {
+            const response = await axios.post(`${constant}/auth/login`, {
                 username: formData.username,
                 password: formData.password
             });
