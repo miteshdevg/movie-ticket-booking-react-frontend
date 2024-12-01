@@ -1,3 +1,50 @@
+# name: Push-to-EC2 instance
+
+# on:
+#   push:
+#     branches:
+#       - master
+
+# jobs:
+#   deploy:
+#     name: Push to EC2
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: Checkout the code
+#         uses: actions/checkout@v1
+
+#       - name: Deploy to EC2 instance
+#         uses: easingthemes/ssh-deploy@v2.1.5
+#         env:
+#           SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+#           SOURCE: "./"
+#           REMOTE_HOST: ${{ secrets.HOST_DNS }}
+#           REMOTE_USER: ${{ secrets.USERNAME }}
+#           TARGET: ${{ secrets.TARGET_DIR }}
+
+#       - name: Executing remote SSH commands using SSH key
+#         uses: appleboy/ssh-action@master
+#         with:
+#           host: ${{ secrets.HOST_DNS }}
+#           username: ${{ secrets.USERNAME }}
+#           key: ${{ secrets.EC2_SSH_KEY }}
+#           script: |
+#             sudo yum -y update
+#             sudo yum install -y httpd
+#             sudo systemctl start httpd
+#             sudo systemctl enable httpd
+#             cd /home/ec2-user
+#             sudo yum install -y nodejs npm
+#             npm install
+#             sudo npm run build
+#             cd build
+#             sudo rm -rf /var/www/html/*
+#             sudo rsync -av --delete ./ /var/www/html/
+#             sudo chown -R apache:apache /var/www/html
+#             sudo chmod -R 755 /var/www/html
+#             sudo systemctl restart httpd
+
 name: Push-to-EC2 instance
 
 on:
@@ -12,7 +59,7 @@ jobs:
 
     steps:
       - name: Checkout the code
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
 
       - name: Deploy to EC2 instance
         uses: easingthemes/ssh-deploy@v2.1.5
@@ -21,26 +68,39 @@ jobs:
           SOURCE: "./"
           REMOTE_HOST: ${{ secrets.HOST_DNS }}
           REMOTE_USER: ${{ secrets.USERNAME }}
-          TARGET: ${{ secrets.TARGET_DIR }}
+          TARGET: "/home/ec2-user/app"
 
       - name: Executing remote SSH commands using SSH key
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v0.1.8
         with:
           host: ${{ secrets.HOST_DNS }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            # Update system packages
             sudo yum -y update
-            sudo yum install -y httpd
+            
+            # Install necessary dependencies
+            sudo yum install -y httpd nodejs npm
+            
+            # Start and enable Apache HTTPD
             sudo systemctl start httpd
             sudo systemctl enable httpd
-            cd /home/ec2-user
-            sudo yum install -y nodejs npm
+            
+            # Navigate to the application directory
+            cd /home/ec2-user/app
+            
+            # Install node modules and build the React app
             npm install
-            sudo npm run build
-            cd build
+            npm run build
+            
+            # Deploy the build to Apache root directory
             sudo rm -rf /var/www/html/*
-            sudo rsync -av --delete ./ /var/www/html/
+            sudo cp -r build/* /var/www/html/
+            
+            # Set proper permissions
             sudo chown -R apache:apache /var/www/html
             sudo chmod -R 755 /var/www/html
+            
+            # Restart Apache to reflect changes
             sudo systemctl restart httpd
