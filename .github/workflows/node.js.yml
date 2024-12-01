@@ -1,0 +1,46 @@
+name: Push-to-EC2 instance
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Push to EC2
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v1
+
+      - name: Deploy to EC2 instance
+        uses: easingthemes/ssh-deploy@v2.1.5
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          SOURCE: "./"
+          REMOTE_HOST: ${{ secrets.HOST_DNS }}
+          REMOTE_USER: ${{ secrets.USERNAME }}
+          TARGET: ${{ secrets.TARGET_DIR }}
+
+      - name: Executing remote SSH commands using SSH key
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST_DNS }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            sudo yum -y update
+            sudo yum install -y httpd
+            sudo systemctl start httpd
+            sudo systemctl enable httpd
+            cd /home/ec2-user
+            sudo yum install -y nodejs npm
+            npm install
+            sudo npm run build
+            cd build
+            sudo rm -rf /var/www/html/*
+            sudo rsync -av --delete ./ /var/www/html/
+            sudo chown -R apache:apache /var/www/html
+            sudo chmod -R 755 /var/www/html
+            sudo systemctl restart httpd
