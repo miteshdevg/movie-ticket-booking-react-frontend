@@ -526,6 +526,7 @@ import axios from 'axios';
 function Home() {
     const [movies, setMovies] = useState([]);
     const [isAdmin, setIsAdmin] = useState(false);
+    const [edit_ID, setEdit_ID] = useState(false);
     const [newMovie, setNewMovie] = useState({
         title: '',
         description: '',
@@ -608,7 +609,106 @@ function Home() {
             console.error('Error deleting movie:', error);
         }
     };
+    // const handleEditMovieSubmit = async () => {
+    //     const formData = new FormData();
+    //     formData.append('title', newMovie.title);
+    //     formData.append('description', newMovie.description);
+    //     formData.append('release_date', newMovie.release_date);
+    //     formData.append('duration', newMovie.duration);
+    //     formData.append('tickets', newMovie.tickets);
+    //     if (newMovie.image) {
+    //         formData.append('image', newMovie.image);
+    //     }
 
+    //     try {
+    //         const response = await axios.patch(`http://localhost:5000/movies/edit/${edit_ID}`, formData, {
+    //             headers: {
+    //                 Authorization: `Bearer ${localStorage.getItem('token')}`,
+    //                 'Content-Type': 'multipart/form-data',
+    //             },
+    //         });
+
+    //         // Update the movie in the state
+    //         setMovies(movies.map((movie) =>
+    //             movie.id === edit_ID ? response.data : movie
+    //         ));
+
+    //         // Reset the form and edit state
+    //         setEdit_ID(false);
+    //         setNewMovie({
+    //             title: '',
+    //             description: '',
+    //             release_date: '',
+    //             duration: '',
+    //             tickets: 0,
+    //             image: null,
+    //         });
+    //     } catch (error) {
+    //         console.error('Error editing movie:', error);
+    //     }
+    // };
+
+    const handleEditMovieSubmit = async () => {
+        if (!edit_ID) {
+            console.error("No movie selected for editing.");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('title', newMovie.title);
+        formData.append('description', newMovie.description);
+        formData.append('release_date', newMovie.release_date);
+        formData.append('duration', newMovie.duration);
+        formData.append('tickets', newMovie.tickets);
+
+        if (newMovie.image) {
+            formData.append('image', newMovie.image);
+        }
+
+        try {
+            const response = await axios.put(
+                `http://localhost:5000/movies/edit/${edit_ID}`,
+                formData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                        'Content-Type': 'multipart/form-data',
+                    },
+                }
+            );
+
+            // Update the movies list
+            setMovies(movies.map(movie =>
+                movie.id === edit_ID ? { ...movie, ...response.data } : movie
+            ));
+
+            // Reset form state
+            setNewMovie({
+                title: '',
+                description: '',
+                release_date: '',
+                duration: '',
+                tickets: 0,
+                image: null,
+            });
+            setEdit_ID(false); // Exit edit mode
+        } catch (error) {
+            console.error('Error editing movie:', error);
+        }
+    };
+
+    const handleEditMovie = async (movie) => {
+        setNewMovie({
+            title: movie.title,
+            description: movie.description,
+            release_date: movie.release_date,
+            duration: movie.duration,
+            tickets: movie.tickets_available,
+            image: null,
+        });
+        setEdit_ID(movie.id)
+
+    }
     const handleTicketChange = async (movieId, newTicketCount) => {
         try {
             await axios.patch(
@@ -692,7 +792,14 @@ function Home() {
                         onChange={handleImageChange}
                         style={styles.input}
                     />
-                    <button onClick={handleAddMovie} style={styles.addButton}>Add Movie</button>
+                    {/* <button onClick={handleAddMovie} style={styles.addButton}>{edit_ID !== false ? 'Edit Movie' : 'Add Movie'}</button> */}
+                    <button
+                        onClick={edit_ID !== false ? handleEditMovieSubmit : handleAddMovie}
+                        style={styles.addButton}
+                    >
+                        {edit_ID !== false ? 'Edit Movie' : 'Add Movie'}
+                    </button>
+
                 </div>
             )}
 
@@ -714,7 +821,10 @@ function Home() {
                             {isAdmin && (
                                 <div style={styles.adminActions}>
                                     <button onClick={() => handleDeleteMovie(movie.id)} style={styles.deleteButton}>Delete</button>
-                                    <Link to={`/movies/edit/${movie.id}`} style={styles.editLink}>Edit</Link>
+                                    <button
+                                        onClick={() => { handleEditMovie(movie) }}
+                                        // to={`/movies/edit/${movie.id}`}
+                                        style={styles.editLink}>Edit</button>
                                     {/* <div>
                                         <button
                                             onClick={() => handleTicketChange(movie.id, movie.tickets - 1)}
