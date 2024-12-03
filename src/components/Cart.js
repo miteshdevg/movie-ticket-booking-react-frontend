@@ -34,15 +34,20 @@ function Cart() {
 
 
     const handleScan = async (data) => {
+        console.log("QR code--->", data);
+
         if (data) {
             setScannedData(data); // Set the scanned QR code value to state
 
+            // 'https://55sa85tdki.execute-api.us-east-1.amazonaws.com/dev',
             try {
                 const response = await axios.post(
-                    'https://55sa85tdki.execute-api.us-east-1.amazonaws.com/dev',
+                    `https://55sa85tdki.execute-api.us-east-1.amazonaws.com/dev`,
                     { qr_code: data }, // Send the scanned QR code to the backend
                     {
-                        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
                     }
                 );
 
